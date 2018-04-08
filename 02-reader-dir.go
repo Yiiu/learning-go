@@ -6,17 +6,11 @@ import (
 	"path/filepath"
 )
 
-// main function
 func main() {
 	path := "./"
-	// Pass function as a parameter is OK in Go.
-	// Walk takes ( path, function ) and goes through path
-	// and calls function for each entry
 	filepath.Walk(path, Walker)
 }
 
-// walker function that gets called per file, receives filename
-// fileinfo object and an error if one occurred
 func Walker(fn string, fi os.FileInfo, err error) error {
 	if err != nil {
 		fmt.Println("Walker Error: ", err)

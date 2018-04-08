@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	filepath = "./01-reader-write-file.go"
+	filePath = "./01-reader-write-file.go"
 )
 
 func main() {
-	f, _ := os.Open(filepath)
+	f, _ := os.Open(filePath)
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
