@@ -10,6 +10,18 @@ import (
 	"io"
 )
 
+type Album struct {
+	title string
+	images []Image
+	resp *goquery.Document
+}
+
+type Image struct {
+	name string
+	url string
+	ext string
+}
+
 const (
 	url = "http://www.jdlingyu.fun/"
 )
@@ -33,33 +45,42 @@ func main() {
 			log.Fatal(err)
 		}
 		title := resp.Find("h2.main-title").Text()
-		isPathOrCreate("./crawler_img/" + title)
-		url := "./crawler_img/" + title
-		resp.Find(".main-body").Find("a").Each(func(i int, s *goquery.Selection) {
-			var band string
-			var exists bool
-			img := s.Find("img")
-			band, exists = img.Attr("data-original")
-			if !exists {
-				band, _ = img.Attr("src")
-			}
-			title, _ := img.Attr("title")
-			ext := path.Ext(band)
-			filePath := url + "/" + title + ext
-			newFile, _ := os.Create(filePath)
-			fmt.Println(1, band)
-			if band != "" {
-				image, err := http.Get(band)
-				if err != nil {
-					log.Fatal(1111, err)
-				}
-				defer image.Body.Close()
-				_, err = io.Copy(newFile, image.Body)
-				if err != nil {
-					log.Fatal(2222, err)
-				}
-			}
-		})
+		al := Album{title: title, resp: resp}
+		al.getAllImage()
+		for _, v := range al.images {
+			v.download("./crawler_img/" + al.title)
+		}
+	}
+}
+
+func (al *Album) getAllImage() {
+	al.resp.Find(".main-body").Find("a").Each(func(i int, s *goquery.Selection) {
+		var band string
+		var exists bool
+		imgDom := s.Find("img")
+		band, exists = imgDom.Attr("data-original")
+		if !exists {
+			band, _ = imgDom.Attr("src")
+		}
+		title, _ := imgDom.Attr("title")
+		ext := path.Ext(band)
+		if band != "" {
+			al.images = append(al.images, Image{title, band, ext})
+		}
+	})
+}
+
+func (image *Image) download (url string) {
+	isPathOrCreate(url)
+	newFile, _ := os.Create(url + "/" + image.name + image.ext)
+	resp, err := http.Get(image.url)
+	if err != nil {
+		log.Fatal(1111, err)
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(newFile, resp.Body)
+	if err != nil {
+		log.Fatal(2222, err)
 	}
 }
 
