@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"fmt"
 	"io"
 )
 
@@ -38,7 +37,6 @@ func main() {
 		arr = append(arr, band)
 	})
 	isPathOrCreate("./crawler_img")
-	fmt.Println(arr)
 	for _, v := range arr {
 		resp, err := fetch(v)
 		if err != nil {
